@@ -1,3 +1,10 @@
+/*
+Package gofile
+Author: Da3zKi7<da3zki7@duck.com>
+
+Modifications by ILoveScratch2<ilovescratch@foxmail.com>
+*/
+
 package drivers
 
 import (
@@ -33,6 +40,7 @@ import (
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/ftp"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/github"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/github_releases"
+	_ "github.com/OpenListTeam/OpenList/v4/drivers/gofile"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/google_drive"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/google_photo"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers/halalcloud"
