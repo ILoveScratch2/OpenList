@@ -81,6 +81,10 @@ func Init(e *gin.Engine) {
 	auth.POST("/auth/2fa/verify", handles.Verify2FA)
 	auth.GET("/auth/logout", handles.LogOut)
 
+	// session management
+	auth.GET("/me/sessions", handles.ListMySessions)
+	auth.POST("/me/sessions/evict", handles.EvictMySession)
+
 	// auth
 	api.GET("/auth/sso", handles.SSOLoginRedirect)
 	api.GET("/auth/sso_callback", handles.SSOLoginCallback)
@@ -178,6 +182,10 @@ func admin(g *gin.RouterGroup) {
 	index.POST("/stop", middlewares.SearchIndex, handles.StopIndex)
 	index.POST("/clear", middlewares.SearchIndex, handles.ClearIndex)
 	index.GET("/progress", middlewares.SearchIndex, handles.GetProgress)
+
+	session := g.Group("/session")
+	session.GET("/list", handles.ListSessions)
+	session.POST("/evict", handles.EvictSession)
 }
 
 func fsAndShare(g *gin.RouterGroup) {
