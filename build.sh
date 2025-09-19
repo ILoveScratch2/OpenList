@@ -77,6 +77,11 @@ FetchWebRelease() {
   rm -rf dist.tar.gz
 }
 
+GenerateWindowsRC() {
+  local target_file="$1"
+  ./gen_winres.sh "$version" "${target_file%.rc}"
+}
+
 BuildWinArm64() {
   echo building for windows-arm64
   chmod +x ./wrapper/zcc-arm64
@@ -87,6 +92,7 @@ BuildWinArm64() {
   export CXX=$(pwd)/wrapper/zcxx-arm64
   export CGO_ENABLED=1
   go build -o "$1" -ldflags="$ldflags" -tags=jsoniter .
+  rm -f openlist_arm64.rc openlist_arm64.syso
 }
 
 BuildWin7() {
@@ -123,12 +129,21 @@ BuildWin7() {
       export CXX=$(pwd)/wrapper/zcxx-win7
     fi
     
+    # Generate resource file with version info
+    GenerateWindowsRC "openlist_win7_${arch}.rc"
+    
     # Use the patched Go compiler for Win7 compatibility
     $(pwd)/go-win7/bin/go build -o "${1}-${arch}.exe" -ldflags="$ldflags" -tags=jsoniter .
+    
+    # Clean up
+    rm -f openlist_win7_${arch}.rc openlist_win7_${arch}.syso
   done
 }
 
 BuildDev() {
+  # Generate Windows resource file for dev builds
+  ./gen_winres.sh "$version" openlist_dev
+  
   rm -rf .git/
   mkdir -p "dist"
   muslflags="--extldflags '-static -fpic' $ldflags"
@@ -158,6 +173,10 @@ BuildDev() {
   # upx -9 ./"$appName"-windows-amd64-upx.exe
   find . -type f -print0 | xargs -0 md5sum >md5.txt
   cat md5.txt
+  
+  # Clean up resource files
+  cd ..
+  rm -f openlist_dev.rc openlist_dev.syso
 }
 
 BuildDocker() {
@@ -216,6 +235,9 @@ BuildDockerMultiplatform() {
 }
 
 BuildRelease() {
+  # Generate Windows resource file for release builds
+  ./gen_winres.sh "$version" openlist_release
+  
   rm -rf .git/
   mkdir -p "build"
   BuildWinArm64 ./build/"$appName"-windows-arm64.exe
@@ -231,6 +253,9 @@ BuildRelease() {
   # Separate from musl builds to avoid cache conflicts
   BuildLoongGLIBC ./build/$appName-linux-loong64-abi1.0 abi1.0
   BuildLoongGLIBC ./build/$appName-linux-loong64 abi2.0
+  
+  # Clean up resource files
+  rm -f openlist_release.rc openlist_release.syso
 }
 
 BuildLoongGLIBC() {
